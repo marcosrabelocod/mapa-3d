@@ -1,0 +1,5 @@
+{
+  "name": "Visualizador de Tabuleiro 3D",
+  "description": "Um visualizador de tabuleiro interativo em 3D. Use o botão direito para girar e o esquerdo para dar zoom.",
+  "requestFramePermissions": []
+}
