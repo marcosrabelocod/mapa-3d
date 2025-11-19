@@ -4,7 +4,7 @@ import { OrbitControls, Environment, PerspectiveCamera, ContactShadows, Stars } 
 import { MOUSE } from 'three';
 import { Board } from './Board';
 import { Obstacle, Agent } from '../App';
-import { AgentBlue } from './agents/AgentBlue';
+import { AgentBlue } from './agents/AgentBlue/index';
 
 // Fix for TypeScript: Augment both React module and global JSX namespace
 declare module 'react' {
@@ -33,11 +33,12 @@ interface SceneProps {
   agents: Agent[];
   onSquareClick: (x: number, z: number) => void;
   onSelectionEnd: (start: {x: number, z: number}, end: {x: number, z: number}) => void;
+  onAgentClick?: (id: string) => void;
   showLabels: boolean;
   isPlacingAgent: boolean;
 }
 
-export const Scene: React.FC<SceneProps> = ({ color1, color2, size, obstacles, agents, onSquareClick, onSelectionEnd, showLabels, isPlacingAgent }) => {
+export const Scene: React.FC<SceneProps> = ({ color1, color2, size, obstacles, agents, onSquareClick, onSelectionEnd, onAgentClick, showLabels, isPlacingAgent }) => {
   
   // Calculate offset to match board logic for agent placement
   const squareSize = 1.5;
@@ -90,7 +91,11 @@ export const Scene: React.FC<SceneProps> = ({ color1, color2, size, obstacles, a
           const yPos = 0.25 + 0.4; // 0.25 (half board height) + 0.4 (half agent box height)
           
           return (
-             <AgentBlue key={agent.id} position={[xPos, yPos, zPos]} />
+             <AgentBlue 
+                key={agent.id} 
+                position={[xPos, yPos, zPos]} 
+                onClick={() => onAgentClick?.(agent.id)}
+             />
           );
         })}
 

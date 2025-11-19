@@ -28,6 +28,7 @@ const App: React.FC = () => {
   // Agents State
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentType, setSelectedAgentType] = useState<string | null>(null);
+  const [selectedAgentInfo, setSelectedAgentInfo] = useState<Agent | null>(null);
   
   // Single interactions
   const [pendingObstacle, setPendingObstacle] = useState<{x: number, z: number} | null>(null);
@@ -37,7 +38,28 @@ const App: React.FC = () => {
   const [pendingMassAdd, setPendingMassAdd] = useState<{ obstaclesToAdd: {x: number, z: number}[] } | null>(null);
   const [pendingMassRemove, setPendingMassRemove] = useState<{ obstaclesToRemove: Obstacle[] } | null>(null);
 
+  const handleAgentClick = (agentId: string) => {
+    const agent = agents.find(a => a.id === agentId);
+    if (agent) {
+      setSelectedAgentInfo(agent);
+      
+      // Reset other interaction modes without clearing the agent info
+      setPendingObstacle(null);
+      setPendingRemoval(null);
+      setPendingMassAdd(null);
+      setPendingMassRemove(null);
+    }
+  };
+
+  const handleRemoveAgent = (agentId: string) => {
+    setAgents(prev => prev.filter(a => a.id !== agentId));
+    setSelectedAgentInfo(null);
+  };
+
   const handleSquareClick = (x: number, z: number) => {
+    // Clear agent selection when clicking on the board
+    setSelectedAgentInfo(null);
+
     // --- AGENT PLACEMENT MODE ---
     if (selectedAgentType) {
       // Check if spot is valid (no obstacle, no agent)
@@ -115,6 +137,7 @@ const App: React.FC = () => {
         setPendingObstacle(null);
         setPendingRemoval(null);
         setPendingMassAdd(null);
+        setSelectedAgentInfo(null);
       }
 
     } else {
@@ -134,6 +157,7 @@ const App: React.FC = () => {
         setPendingObstacle(null);
         setPendingRemoval(null);
         setPendingMassRemove(null);
+        setSelectedAgentInfo(null);
       }
     }
   };
@@ -180,10 +204,12 @@ const App: React.FC = () => {
     setPendingRemoval(null);
     setPendingMassAdd(null);
     setPendingMassRemove(null);
+    setSelectedAgentInfo(null);
   };
 
   const clearAgents = () => {
     setAgents([]);
+    setSelectedAgentInfo(null);
   };
 
   // Clear obstacles when resizing board
@@ -206,6 +232,7 @@ const App: React.FC = () => {
           agents={agents}
           onSelectionEnd={handleSelectionEnd}
           onSquareClick={handleSquareClick} 
+          onAgentClick={handleAgentClick}
           showLabels={showLabels}
           isPlacingAgent={!!selectedAgentType}
         />
@@ -242,6 +269,9 @@ const App: React.FC = () => {
           onSelectAgentType={setSelectedAgentType}
           onClearAgents={clearAgents}
           agentCount={agents.length}
+
+          selectedAgentInfo={selectedAgentInfo}
+          onRemoveAgent={handleRemoveAgent}
         />
       </div>
     </div>

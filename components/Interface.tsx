@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Move3d, Palette, Menu, X, Grid3x3, AlertCircle, Trash2, Type, Layers, Ban, Users, PlusSquare, Bot, MousePointerClick } from 'lucide-react';
+import { Move3d, Palette, Menu, X, Grid3x3, AlertCircle, Trash2, Type, Layers, Ban, Users, PlusSquare, Bot, MousePointerClick, Activity, Shield, Zap, Heart } from 'lucide-react';
+import { attributesData } from './agents/AgentBlue/attributes';
+import { Agent } from '../App';
 
 interface InterfaceProps {
   color1: string;
@@ -35,6 +37,9 @@ interface InterfaceProps {
   onSelectAgentType: (type: string | null) => void;
   onClearAgents: () => void;
   agentCount: number;
+  
+  selectedAgentInfo?: Agent | null;
+  onRemoveAgent: (id: string) => void;
 }
 
 export const Interface: React.FC<InterfaceProps> = ({ 
@@ -55,10 +60,16 @@ export const Interface: React.FC<InterfaceProps> = ({
   selectedAgentType,
   onSelectAgentType,
   onClearAgents,
-  agentCount
+  agentCount,
+  selectedAgentInfo,
+  onRemoveAgent
 }) => {
   const [isLeftMenuOpen, setIsLeftMenuOpen] = useState(true);
   const [isRightMenuOpen, setIsRightMenuOpen] = useState(false);
+
+  // In a real app, you'd map agent.type to specific attributes
+  // For now, we only have 'blue' type, so we default to attributesData
+  const currentAttributes = selectedAgentInfo ? attributesData : null;
 
   return (
     <div className="w-full h-full relative">
@@ -80,6 +91,73 @@ export const Interface: React.FC<InterfaceProps> = ({
       >
         {isRightMenuOpen ? <X size={24} /> : <Bot size={24} />}
       </button>
+
+      {/* AGENT INFO CARD (Bottom Left Overlay) - Z-50 ensures it's above Sidebar (Z-40) */}
+      {currentAttributes && selectedAgentInfo && (
+        <div className="pointer-events-auto absolute bottom-4 left-4 z-50 w-72 animate-in slide-in-from-bottom duration-300">
+          <div className="bg-slate-900/95 backdrop-blur-xl border border-slate-700 p-5 rounded-2xl shadow-2xl relative overflow-hidden">
+             {/* Decorative Glow */}
+             <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full pointer-events-none"></div>
+
+             {/* Close Button */}
+             <button 
+               onClick={onCancel}
+               className="absolute top-2 right-2 p-1.5 bg-slate-800/50 hover:bg-slate-700 text-slate-400 hover:text-white rounded-full transition-colors z-20"
+               title="Fechar"
+             >
+               <X size={14} />
+             </button>
+
+             <div className="flex items-center justify-between mb-4 relative z-10">
+                <div>
+                  <h2 className="text-xl font-bold text-white">{currentAttributes.name}</h2>
+                  <p className="text-slate-400 text-xs">{currentAttributes.classType} • Lvl 1</p>
+                </div>
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center shadow-inner text-white">
+                  <Bot size={20} />
+                </div>
+             </div>
+
+             <div className="grid grid-cols-2 gap-3 relative z-10">
+                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex flex-col items-center justify-center gap-1">
+                  <div className="text-rose-400 flex items-center gap-1 text-xs font-bold uppercase"><Heart size={12} /> Vida</div>
+                  <span className="text-white font-mono text-lg">{currentAttributes.attributes.health}</span>
+                </div>
+                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex flex-col items-center justify-center gap-1">
+                  <div className="text-amber-400 flex items-center gap-1 text-xs font-bold uppercase"><Zap size={12} /> Força</div>
+                  <span className="text-white font-mono text-lg">{currentAttributes.attributes.strength}</span>
+                </div>
+                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex flex-col items-center justify-center gap-1">
+                  <div className="text-blue-400 flex items-center gap-1 text-xs font-bold uppercase"><Shield size={12} /> Defesa</div>
+                  <span className="text-white font-mono text-lg">{currentAttributes.attributes.defense}</span>
+                </div>
+                <div className="bg-slate-800/50 p-2 rounded-lg border border-slate-700 flex flex-col items-center justify-center gap-1">
+                  <div className="text-emerald-400 flex items-center gap-1 text-xs font-bold uppercase"><Activity size={12} /> Mov.</div>
+                  <span className="text-white font-mono text-lg">{currentAttributes.attributes.movement}</span>
+                </div>
+             </div>
+             
+             <div className="mt-4 pt-3 border-t border-slate-800">
+                <p className="text-xs text-slate-500 italic mb-3">
+                  "{currentAttributes.metadata.description}"
+                </p>
+                
+                <div className="flex items-center justify-between">
+                  <button 
+                    onClick={() => onRemoveAgent(selectedAgentInfo.id)}
+                    className="flex items-center gap-1.5 px-2 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded-md text-xs font-medium transition-colors border border-red-900/30"
+                  >
+                    <Trash2 size={12} />
+                    Excluir
+                  </button>
+                  <span className="text-[10px] text-slate-600 font-mono">
+                    {String.fromCharCode(65 + selectedAgentInfo.x)}{selectedAgentInfo.z + 1}
+                  </span>
+                </div>
+             </div>
+          </div>
+        </div>
+      )}
 
       {/* ADD SINGLE Obstacle Confirmation */}
       {pendingObstacle && (

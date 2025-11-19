@@ -1,0 +1,14 @@
+export const attributesData = {
+  name: "Soldado Azul",
+  classType: "Warrior",
+  attributes: {
+    health: 10,
+    movement: 1,
+    defense: 2,
+    strength: 5
+  },
+  metadata: {
+    description: "Um soldado básico com armadura azul.",
+    version: "1.0"
+  }
+};
